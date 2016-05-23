@@ -2,7 +2,9 @@
 You have to like three things to use this bot.  
 
 1) You're into Drupal and have a site set up using it
+
 2) Your team uses slack and is also into video games
+
 3) The main game you love is Destiny and you like to see your stats 
 
 ### Install
