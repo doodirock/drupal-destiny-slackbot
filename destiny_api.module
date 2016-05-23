@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Code for the destiny_api module.
+ */
+
+
+/**
+ * Implementation of hook_menu
+ */
+function destiny_api_menu() {
+  $items = array();
+  $items['api/destiny'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'destiny_api_json',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+
+/**
+ * Implementation of json response
+ */
+function destiny_api_json($params) {
+  $gamertag = $_POST['text'];
+  $verifyToken = $_POST['token'];
+  $token = '';  
+	$apiKey = '';
+  $options = array(
+    'method' => 'GET',
+    'timeout' => 15,
+    'headers' => array('Content-Type' => 'application/json', 'X-API-Key' => $apiKey),
+  );
+
+  if ($verifyToken === $token){
+    
+    $searchurl = 'https://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/1/'.$gamertag.'/';
+
+    $request1 = drupal_http_request($searchurl, $options);
+    $gettag = drupal_json_decode($request1->data);
+    $memberID = $gettag["Response"][0]["membershipId"];
+
+
+    $baseurl = 'https://www.bungie.net/Platform/Destiny/Stats/Account/1/'.$memberID.'/';
+
+    $request2 = drupal_http_request($baseurl, $options);
+    $try = drupal_json_decode($request2->data);
+    if ($try["ErrorCode"] === 7){
+      echo 'Sorry I cannot seem to find this character in Bungie Database.  Maybe you typed it wrong, or maybe you\'re just stupid?';
+    } else {
+
+      // Start of PvP 
+      $daysPlayed = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['secondsPlayed']['basic']['displayValue'];
+      $highestLight = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['highestLightLevel']['basic']['displayValue'];
+      $kpd = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['killsDeathsRatio']['basic']['displayValue'];
+      $precisionKills = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['precisionKills']['basic']['displayValue'];
+      $bestWep = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['weaponBestType']['basic']['displayValue'];
+      $winLoss = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['winLossRatio']['basic']['displayValue'];
+      $longSpree = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['longestKillSpree']['basic']['displayValue'];
+
+      $arr = array('response_type' => 'in_channel', 'text' => 'Life time PvP stats for '.$gamertag.'', 'attachments' => array(array('color' => '#FFCE1F', 'author_name' => ''.$gamertag.'\'s Profile', 'author_link' => 'https://www.bungie.net/en/Profile/1/'.$memberID.'', 'title' => $daysPlayed.'s played', 'title_link' => 'https://www.bungie.net/en/Profile/Triumphs/1/'.$memberID.'', 'text' => 'Stats below are shared between all characters', 'fields' => array(array('title' => 'Highest Light Lvl', 'value' => $highestLight.' light', 'short' => true),array('title' => 'KPD', 'value' => $kpd, 'short' => true),array('title' => 'Precision Kills', 'value' => $precisionKills.' kills', 'short' => true),array('title' => 'Best Weapon', 'value' => $bestWep, 'short' => true),array('title' => 'Win Loss Ratio', 'value' => $winLoss, 'short' => true),array('title' => 'Longest Spree', 'value' => $longSpree, 'short' => true)))));
+
+      //echo 'Looks like your longest spree was '.$longSpree.'';
+
+      return drupal_json_output($arr);
+    }
+  } else {
+    echo "I got nothin";
+  }
+}

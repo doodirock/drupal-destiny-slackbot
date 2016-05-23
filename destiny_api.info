@@ -1,0 +1,8 @@
+core = "7.x"
+name = "Destiny API"
+description = "Used to return toon information on slack"
+package = "SLACK"
+project = "destiny_api"
+version = "7.x-0.1"
+
+stylesheets[all][] = css/lfg.css
