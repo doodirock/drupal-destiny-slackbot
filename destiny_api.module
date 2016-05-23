@@ -26,8 +26,8 @@ function destiny_api_menu() {
 function destiny_api_json($params) {
   $gamertag = $_POST['text'];
   $verifyToken = $_POST['token'];
-  $token = '';  
-	$apiKey = '';
+  $token = '';  // Enter in your token from Slack here
+  $apiKey = '';  // Enter in your Destiny API key here
   $options = array(
     'method' => 'GET',
     'timeout' => 15,
@@ -61,8 +61,6 @@ function destiny_api_json($params) {
       $longSpree = $try['Response']['mergedAllCharacters']['results']['allPvP']['allTime']['longestKillSpree']['basic']['displayValue'];
 
       $arr = array('response_type' => 'in_channel', 'text' => 'Life time PvP stats for '.$gamertag.'', 'attachments' => array(array('color' => '#FFCE1F', 'author_name' => ''.$gamertag.'\'s Profile', 'author_link' => 'https://www.bungie.net/en/Profile/1/'.$memberID.'', 'title' => $daysPlayed.'s played', 'title_link' => 'https://www.bungie.net/en/Profile/Triumphs/1/'.$memberID.'', 'text' => 'Stats below are shared between all characters', 'fields' => array(array('title' => 'Highest Light Lvl', 'value' => $highestLight.' light', 'short' => true),array('title' => 'KPD', 'value' => $kpd, 'short' => true),array('title' => 'Precision Kills', 'value' => $precisionKills.' kills', 'short' => true),array('title' => 'Best Weapon', 'value' => $bestWep, 'short' => true),array('title' => 'Win Loss Ratio', 'value' => $winLoss, 'short' => true),array('title' => 'Longest Spree', 'value' => $longSpree, 'short' => true)))));
-
-      //echo 'Looks like your longest spree was '.$longSpree.'';
 
       return drupal_json_output($arr);
     }
